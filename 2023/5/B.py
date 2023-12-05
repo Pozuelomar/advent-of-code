@@ -42,22 +42,10 @@ def convert(type_, value, remaining_length):
 def min_location(type_, value, length):
     if type_ == 'location':
         return value
-    
-    min_ = 10**100
-    for type_, value, length in convert(type_, value, length):
-        min2 = min_location(type_, value, length)
-        min_ = min(min_, min2)
-
-    return min_
+    return min(min_location(*sub_range) for sub_range in convert(type_, value, length))
     
 # print(conversions)
 # print(converts_to)
-min_ = 10**100
-for i in range(0, len(seeds), 2):
-    start = seeds[i]
-    length = seeds[i+1]
-
-    value = min_location('seed', start, length)
-    min_ = min(min_, value)
+min_ = min(min_location('seed', seeds[i], seeds[i+1]) for i in range(0, len(seeds), 2))
 print(min_)
 # 79004094
