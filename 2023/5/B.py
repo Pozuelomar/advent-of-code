@@ -20,22 +20,24 @@ for line in sys.stdin:
 
 def convert(type_, value, remaining_length):
     assert type_ in conversions
-    while 1:
-        for a, b, length in conversions[type_]:
-            if value >= a and value < a+length:
-                usable_length = length - (value - a)
-                yield converts_to[type_], b + value - a, min(remaining_length, usable_length)
-                if remaining_length <= usable_length:
-                    return # We used all the length
-                value, remaining_length = value+usable_length, remaining_length-usable_length # Continue with the rest of the length
-                break
-        else: # Couldn't find a conversion from value
-            a, b, length = min([(a, b, length_) for (a, b, length_) in conversions[type_] if a > value]+[(10**100, 10**100, 10**100)])
-            if a >= value + remaining_length: # No range accessible
-                yield converts_to[type_], value, remaining_length
-                return # We used all the length
-            yield converts_to[type_], value, a - value
-            value, remaining_length = a, remaining_length - (a - value)
+    for a, b, length in conversions[type_]:
+        if value >= a and value < a+length:
+            usable_length = length - (value - a)
+            if remaining_length <= usable_length: # If we use all the length
+                yield converts_to[type_], b + value - a, remaining_length
+            else:
+                yield converts_to[type_], b + value - a, usable_length
+                yield from convert(type_, value+usable_length, remaining_length-usable_length) # Continue with the rest of the length
+            return
+    # Couldn't find a conversion from value
+    a, b, length = min([(a, b, length_) for (a, b, length_) in conversions[type_] if a > value]+[(10**100, 10**100, 10**100)])
+    length_until_next = a - value
+    if length_until_next >= remaining_length: # If no range are accessible
+        yield converts_to[type_], value, remaining_length
+    else:
+        yield converts_to[type_], value, length_until_next
+        yield from convert(type_, a, remaining_length - length_until_next)
+    return
 
 def min_location(type_, value, length):
     if type_ == 'location':
