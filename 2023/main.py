@@ -17,7 +17,9 @@ if __name__ == "__main__":
             day = sys.argv[2]
             exercise = sys.argv[3]
             assert exercise in ["A", "B"]
-            os.system(f"python3 {day}/{exercise}.py < {day}/input.txt > {day}/{exercise}.output")
+            os.system(
+                f"python3 {day}/{exercise}.py < {day}/input.txt > {day}/{exercise}.output"
+            )
             with open(f"{day}/{exercise}.output") as output:
                 print(output.read())
 

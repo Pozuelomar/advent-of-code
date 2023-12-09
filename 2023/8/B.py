@@ -6,7 +6,7 @@ sys.stdin.readline()
 map = {line[:3]: (line[7:10], line[12:15]) for line in sys.stdin}
 
 # print(map)
-start_areas = [area for area in map if area.endswith('A')]
+start_areas = [area for area in map if area.endswith("A")]
 
 # # Graph analysis
 # for area in start_areas:
@@ -44,8 +44,8 @@ start_areas = [area for area in map if area.endswith('A')]
 first_Zs = []
 for area in start_areas:
     steps = 0
-    while not area.endswith('Z'):
-        area = map[area][directions[steps % len(directions)] == 'R']
+    while not area.endswith("Z"):
+        area = map[area][directions[steps % len(directions)] == "R"]
         steps += 1
     first_Zs.append(steps)
 

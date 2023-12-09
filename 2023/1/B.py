@@ -11,26 +11,41 @@
 #         for digit in digits:
 #             if line[i:].startswith(digit):
 #                 l.append(str(digits.index(digit)))
-        
+
 #     n = int(l[0]+l[-1])
 #     sum += n
 
 import sys
 import re
-digits = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
+
+digits = [
+    "zero",
+    "one",
+    "two",
+    "three",
+    "four",
+    "five",
+    "six",
+    "seven",
+    "eight",
+    "nine",
+]
+
 
 def foo(s):
-    return s if s.isnumeric() else str(digits.index(s)) 
+    return s if s.isnumeric() else str(digits.index(s))
+
 
 def search(regex, line):
     v = regex.search(line)
-    return line[v.start():v.end()]
+    return line[v.start() : v.end()]
+
 
 sum = 0
-digitRegex = re.compile("\d|"+"|".join(digits))
-tigidRegex = re.compile("\d|"+"|".join([d[::-1] for d in digits]))
+digitRegex = re.compile("\d|" + "|".join(digits))
+tigidRegex = re.compile("\d|" + "|".join([d[::-1] for d in digits]))
 for line in sys.stdin:
-    v = search(digitRegex,line)
-    w = search(tigidRegex,line[::-1])[::-1]
-    sum += int(foo(v)+foo(w))
+    v = search(digitRegex, line)
+    w = search(tigidRegex, line[::-1])[::-1]
+    sum += int(foo(v) + foo(w))
 print(sum)
