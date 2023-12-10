@@ -117,11 +117,20 @@ def flood(pos):
 
 flood(np.array([0, 0]))
 
+# better_print = {
+#     "|": "║",
+#     "-": "═",
+#     "F": "╔",
+#     "7": "╗",
+#     "J": "╝",
+#     "L": "╚",
+#     "S": "╚",
+# }
 # # Print pipe loop
 # for i in range(pipes.shape[0] - 1):
 #     for j in range(pipes.shape[1] - 1):
 #         if (i, j) in loop_pipes:
-#             print(pipes[i, j], end="")
+#             print(better_print[pipes[i, j]], end="")
 #         else:
 #             print(" ", end="")
 #     print()
@@ -140,16 +149,34 @@ flood(np.array([0, 0]))
 # for i in range(pipes.shape[0] - 1):
 #     for j in range(pipes.shape[1] - 1):
 #         if (i, j) in loop_pipes:
-#             print(pipes[i, j] + " ", end="")
+#             print(better_print[pipes[i, j]], end="")
 #         else:
-#             print("  ", end="")
+#             print("x", end="")
+#         if (
+#             (i, j) in loop_pipes
+#             and (i, j + 1) in loop_pipes
+#             and L in directions[pipes[i, j]]
+#             and R in directions[pipes[i, j + 1]]
+#         ):
+#             print("═", end="")
+#         else:
+#             print(" ", end="")
 #     print()
 #     print(" ", end="")
 #     for j in range(pipes.shape[1] - 1):
 #         if (i, j) in flooded:
-#             print(". ", end="")
+#             print(".", end="")
 #         else:
-#             print("  ", end="")
+#             print(" ", end="")
+#         if (
+#             (i, j + 1) in loop_pipes
+#             and (i + 1, j + 1) in loop_pipes
+#             and U in directions[pipes[i, j + 1]]
+#             and D in directions[pipes[i + 1, j + 1]]
+#         ):
+#             print("║", end="")
+#         else:
+#             print(" ", end="")
 #     print()
 
 # Looking for dry areas
