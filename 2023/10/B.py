@@ -2,10 +2,11 @@ import sys
 import numpy as np
 
 pipes = np.array([list(l) for l in sys.stdin.read().splitlines()])
+# Surrounding pipes with empty space for easier processing
 pipes2 = np.full(pipes.shape + np.array([2, 2]), ".")
 pipes2[1:-1, 1:-1] = pipes
 pipes = pipes2
-print(pipes)
+# print(pipes)
 
 D = (1, 0)
 U = (-1, 0)
@@ -18,7 +19,7 @@ directions = {
     "7": {U: L, R: D},
     "J": {D: L, R: U},
     "L": {D: R, L: U},
-    "S": {D: R, L: U},  # Works only in this dataset
+    "S": {D: R, L: U},  # Works only in this dataset as S=L
     ".": {},
 }
 
@@ -40,7 +41,9 @@ while pipes[*position] != "S":
 # print(loop_pipes)
 
 
-visited = set()
+# Flooding the area, to count the remaining dry spots
+
+flooded = set()
 sys.setrecursionlimit(100000)
 
 
@@ -51,123 +54,111 @@ sys.setrecursionlimit(100000)
 #         return
 #     if not -1 <= pos[1] < pipes.shape[1] + 1:
 #         return
-#     if tuple(pos) in visited:
+#     if tuple(pos) in flooded:
 #         return
 #     if tuple(pos) in loop_pipes:
 #         return
-#     visited.add(tuple(pos))
+#     flooded.add(tuple(pos))
 #     for direction in [U, D, L, R]:
 #         direction = np.array(direction)
 #         foo(pos + direction)
 
-# Shifted index map
-# Water flowing in 0, should have the position of F + [.5,.5]
-# But we use the same position as F to have round index
+# Shifting index map
+# Water flowing in 0 is shifted diagonally by half a cell.
+# 0 have physical position of F + [.5,.5]
+# but we use the same coordinates as F to have round index
 # F 7
 #  0
 # L J
 
 
 # Using pipes as barriers
-def foo(pos):
-    # print(pos)
-    if not 0 <= pos[0] < pipes.shape[0] - 1:
+def flood(pos):
+    if not 0 <= pos[0] < pipes.shape[0]:
         return
-    if not 0 <= pos[1] < pipes.shape[1] - 1:
+    if not 0 <= pos[1] < pipes.shape[1]:
         return
-    if tuple(pos) in visited:
+    if tuple(pos) in flooded:
         return
-    visited.add(tuple(pos))
+    flooded.add(tuple(pos))
+
     for direction in [U, D, L, R]:
         match direction:
             case (-1, 0):  # U
-                if (
-                    tuple(pos) in loop_pipes
-                    and tuple(pos + R) in loop_pipes
-                    and L in directions[pipes[*pos]]
-                    and R in directions[pipes[*pos + R]]
-                ):
-                    continue
+                pos1 = pos
+                pos2 = pos + R
+                d1 = L
+                d2 = R
             case (1, 0):  # D
-                if (
-                    tuple(pos + D) in loop_pipes
-                    and tuple(pos + D + R) in loop_pipes
-                    and L in directions[pipes[*pos + D]]
-                    and R in directions[pipes[*pos + D + R]]
-                ):
-                    continue
+                pos1 = pos + D
+                pos2 = pos + D + R
+                d1 = L
+                d2 = R
             case (0, -1):  # L
-                if (
-                    tuple(pos) in loop_pipes
-                    and tuple(pos + D) in loop_pipes
-                    and U in directions[pipes[*pos]]
-                    and D in directions[pipes[*pos + D]]
-                ):
-                    continue
+                pos1 = pos
+                pos2 = pos + D
+                d1 = U
+                d2 = D
             case (0, 1):  # R
-                if (
-                    tuple(pos + R) in loop_pipes
-                    and tuple(pos + R + D) in loop_pipes
-                    and U in directions[pipes[*pos + R]]
-                    and D in directions[pipes[*pos + R + D]]
-                ):
-                    continue
+                pos1 = pos + R
+                pos2 = pos + R + D
+                d1 = U
+                d2 = D
+        if (  # Two pipes from the loop are connected, blocking water from pos to pos+direction
+            tuple(pos1) in loop_pipes
+            and tuple(pos2) in loop_pipes
+            and d1 in directions[pipes[*pos1]]
+            and d2 in directions[pipes[*pos2]]
+        ):
+            continue
         direction = np.array(direction)
-        foo(pos + direction)
+        flood(pos + direction)
 
 
-foo(np.array([0, 0]))
-print(len(visited))
+flood(np.array([0, 0]))
+
+# # Print pipe loop
+# for i in range(pipes.shape[0] - 1):
+#     for j in range(pipes.shape[1] - 1):
+#         if (i, j) in loop_pipes:
+#             print(pipes[i, j], end="")
+#         else:
+#             print(" ", end="")
+#     print()
+
+# # Print water
+# for i in range(pipes.shape[0] - 1):
+#     for j in range(pipes.shape[1] - 1):
+#         if (i, j) in flooded:
+#             print(".", end="")
+#         else:
+#             print(" ", end="")
+#     print()
 
 
-# Print pipe loop
-for i in range(pipes.shape[0] - 1):
-    for j in range(pipes.shape[1] - 1):
-        if (i, j) in loop_pipes:
-            print(pipes[i, j], end="")
-        else:
-            print(" ", end="")
-    print()
+# # Full print pipe loop and water
+# for i in range(pipes.shape[0] - 1):
+#     for j in range(pipes.shape[1] - 1):
+#         if (i, j) in loop_pipes:
+#             print(pipes[i, j] + " ", end="")
+#         else:
+#             print("  ", end="")
+#     print()
+#     print(" ", end="")
+#     for j in range(pipes.shape[1] - 1):
+#         if (i, j) in flooded:
+#             print(". ", end="")
+#         else:
+#             print("  ", end="")
+#     print()
 
-# Print water
-for i in range(pipes.shape[0] - 1):
-    for j in range(pipes.shape[1] - 1):
-        if (i, j) in visited:
-            print(".", end="")
-        else:
-            print(" ", end="")
-    print()
-
-
-# Full print pipe loop and water
-for i in range(pipes.shape[0] - 1):
-    for j in range(pipes.shape[1] - 1):
-        if (i, j) in loop_pipes:
-            print(pipes[i, j] + " ", end="")
-        else:
-            print("  ", end="")
-    print()
-    print(" ", end="")
-    for j in range(pipes.shape[1] - 1):
-        if (i, j) in visited:
-            print(". ", end="")
-        else:
-            print("  ", end="")
-    print()
-
-# Looking for dry area with no pipe
+# Looking for dry areas
 total = 0
 for i in range(pipes.shape[0]):
     for j in range(pipes.shape[1]):
-        if (i, j) in loop_pipes:
-            continue
-        if (i - 1, j - 1) in visited:
-            continue
-        if (i, j - 1) in visited:
-            continue
-        if (i - 1, j) in visited:
-            continue
-        if (i, j) in visited:
+        if any(
+            map(flooded.__contains__, [(i - 1, j - 1), (i, j - 1), (i - 1, j), (i, j)])
+        ):
             continue
         total += 1
 print(total)

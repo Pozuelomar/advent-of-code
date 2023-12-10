@@ -14,15 +14,13 @@ directions = {
     "7": {U: L, R: D},
     "J": {D: L, R: U},
     "L": {D: R, L: U},
-    # "S": {D: R, L: U},
 }
 
 start = np.array(np.where(pipes == "S"))[:, 0]
 
 for direction in [U, D, L, R]:
-    direction = np.array(direction)
-    position = start + direction
-    if tuple(direction) in directions[pipes[*position]]:
+    position = start + np.array(direction)
+    if direction in directions[pipes[*position]]:
         break
 
 i = 1
