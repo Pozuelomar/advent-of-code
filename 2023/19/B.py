@@ -20,44 +20,45 @@ for line in sys.stdin.read().splitlines():
 def count_accepted(value, label):
     value = {k: v[:] for k, v in value.items()}
     if label == "A":
-        yield prod(v[1] - v[0] + 1 for v in value.values())
-        return
+        return prod(v[1] - v[0] + 1 for v in value.values())
     if label == "R":
-        yield 0
-        return
-    for cd in instructions[label]:
+        return 0
+
+    def process_condition(cd):
         if ":" not in cd:
-            yield from count_accepted(value, cd)
-            return
+            return count_accepted(value, cd)
         var, op, val, dest = re.match(r"(\w+)([<>])(\d+):(\w+)", cd).groups()
         match op:
             case ">" if value[var][0] > int(val):
-                yield from count_accepted(value, dest)
+                return count_accepted(value, dest)
             case ">" if value[var][1] <= int(val):
-                continue
+                return 0
             case ">":
                 old_v = value[var][0]
                 value[var][0] = int(val) + 1
-                yield from count_accepted(value, dest)
+                x = count_accepted(value, dest)
                 value[var][0] = old_v
                 value[var][1] = int(val)
+                return x
             case "<" if value[var][1] < int(val):
-                yield from count_accepted(value, dest)
+                return count_accepted(value, dest)
             case "<" if value[var][0] >= int(val):
-                continue
+                return 0
             case "<":
                 old_v = value[var][1]
                 value[var][1] = int(val) - 1
-                yield from count_accepted(value, dest)
+                x = count_accepted(value, dest)
                 value[var][1] = old_v
                 value[var][0] = int(val)
+                return x
+
+    return sum(process_condition(cd) for cd in instructions[label])
 
 
 print(
-    sum(
-        count_accepted(
-            {"x": [1, 4000], "m": [1, 4000], "a": [1, 4000], "s": [1, 4000]}, "in"
-        )
+    count_accepted(
+        {"x": [1, 4000], "m": [1, 4000], "a": [1, 4000], "s": [1, 4000]},
+        "in",
     )
 )
 # 126107942006821
