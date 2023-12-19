@@ -1,6 +1,6 @@
 import sys
-from math import prod
 import re
+from math import prod
 
 instructions = {}
 values = []
