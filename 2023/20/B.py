@@ -1,6 +1,6 @@
 import sys
 from collections import defaultdict, deque
-from math import prod
+from math import lcm
 
 all_nodes = {}
 for line in sys.stdin.read().splitlines():
@@ -77,5 +77,5 @@ def send_pulse():
 for i in range(100_000):
     send_pulse()
 
-print(prod(diff.values()))
+print(lcm(*diff.values()))
 # 238815727638557
