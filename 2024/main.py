@@ -1,5 +1,6 @@
 import os
 import sys
+import subprocess
 
 if __name__ == "__main__":
     match sys.argv[1]:
@@ -17,8 +18,9 @@ if __name__ == "__main__":
             day = sys.argv[2]
             exercise = sys.argv[3]
             assert exercise in ["A", "B"]
-            os.system(
-                f"python3 {day}/{exercise}.py < {day}/input.txt > {day}/{exercise}.output"
+            subprocess.check_output(
+                f"python3 {day}/{exercise}.py < {day}/input.txt > {day}/{exercise}.output",
+                shell=True,
             )
             with open(f"{day}/{exercise}.output") as output:
                 print(output.read())
